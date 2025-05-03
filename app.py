@@ -4,6 +4,8 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from config import config as app_config
 from database.models import db, User
+from auth import routes
+
 
 # Initialize extensions
 login_manager = LoginManager()
@@ -48,7 +50,8 @@ def create_app(config_name='default'):
     app.register_blueprint(users_blueprint, url_prefix='/api')
     
     # Register main routes
-    from routes import main as main_blueprint
-    app.register_blueprint(main_blueprint)
-    
+    """from auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint, url_prefix='/auth')
+    """
+
     return app

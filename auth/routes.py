@@ -12,7 +12,7 @@ def login():
     """Render the login page and handle login requests"""
     # If already logged in, redirect to home
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('auth.index'))
     
     if request.method == 'POST':
         # If it's an AJAX request
@@ -35,7 +35,7 @@ def login():
             # Log in the user
             login_user(user, remember=remember)
             
-            return jsonify({'success': True, 'redirect': url_for('main.index')})
+            return jsonify({'success': True, 'redirect': url_for('auth.index')})
         
         # If it's a regular form submission
         else:
@@ -58,7 +58,7 @@ def login():
             # Log in the user
             login_user(user, remember=remember)
             
-            return redirect(url_for('main.index'))
+            return redirect(url_for('auth.index'))
     
     # GET request - render login form
     return render_template('login.html')
@@ -68,7 +68,7 @@ def register():
     """Render the registration page and handle registration requests"""
     # If already logged in, redirect to home
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('auth.index'))
     
     if request.method == 'POST':
         # If it's an AJAX request
@@ -116,7 +116,7 @@ def register():
             # Log in the new user
             login_user(new_user)
             
-            return jsonify({'success': True, 'redirect': url_for('main.index')})
+            return jsonify({'success': True, 'redirect': url_for('auth.index')})
         
         # If it's a regular form submission
         else:
@@ -165,7 +165,7 @@ def register():
             # Log in the new user
             login_user(new_user)
             
-            return redirect(url_for('main.index'))
+            return redirect(url_for('auth.index'))
     
     # GET request - render registration form
     return render_template('register.html')
@@ -181,7 +181,7 @@ def logout():
         return jsonify({'success': True})
     
     # Regular request
-    return redirect(url_for('main.index'))
+    return redirect(url_for('auth.index'))
 
 @auth.route('/check-email', methods=['POST'])
 def check_email():
