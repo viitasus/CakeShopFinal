@@ -18,13 +18,13 @@ class DevelopmentConfig(Config):
     """Development configuration"""
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'postgresql://postgres:password@localhost/happy_cake_dev'
+        'sqlite:///app.db'
 
 class TestingConfig(Config):
     """Testing configuration"""
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
-        'postgresql://postgres:password@localhost/happy_cake_test'
+        'sqlite:///test.db'
 
 class ProductionConfig(Config):
     """Production configuration"""

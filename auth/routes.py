@@ -1,241 +1,214 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
-from flask_login import login_required, current_user
-from database.models import db, Product, Category, CartItem, Order, Address, Discount
-from datetime import datetime
+from flask_login import login_user, logout_user, login_required, current_user
+from database.models import db, User
+from werkzeug.security import generate_password_hash, check_password_hash
+from auth.utils import validate_email, validate_password, get_password_strength
 
-main = Blueprint('main', __name__)
+# Create blueprint
+auth = Blueprint('auth', __name__)
 
-@main.route('/')
-def index():
-    """Render the homepage"""
-    # Get popular products
-    popular_products = Product.query.filter_by(is_available=True).limit(6).all()
-    
-    return render_template('index.html', products=popular_products)
-
-@main.route('/menu')
-def menu():
-    """Render the menu page"""
-    category_slug = request.args.get('category')
-    search_term = request.args.get('search')
-    
-    # Get all categories
-    categories = Category.query.all()
-    
-    return render_template('menu.html', categories=categories, active_category=category_slug, search_term=search_term)
-
-@main.route('/product/<product_slug>')
-def product(product_slug):
-    """Render the product detail page"""
-    product = Product.query.filter_by(slug=product_slug).first_or_404()
-    
-    # Get related products (same category)
-    related_products = []
-    if product.categories:
-        category = product.categories[0]
-        related_products = category.products.filter(Product.id != product.id, Product.is_available == True).limit(4).all()
-    
-    return render_template('product.html', product=product, related_products=related_products)
-
-@main.route('/cart')
-def cart():
-    """Render the cart page"""
-    return render_template('cart.html')
-
-@main.route('/checkout')
-@login_required
-def checkout():
-    """Render the checkout page"""
-    # Check if cart is empty
-    cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
-    
-    if not cart_items:
-        flash('Your cart is empty', 'warning')
-        return redirect(url_for('main.cart'))
-    
-    return render_template('checkout.html')
-
-@main.route('/profile')
-@login_required
-def profile():
-    """Render the profile page"""
-    return render_template('profile/dashboard.html')
-
-@main.route('/profile/orders')
-@login_required
-def profile_orders():
-    """Render the orders page"""
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 5, type=int)
-    
-    # Get user's orders with pagination
-    pagination = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).paginate(
-        page=page, per_page=per_page, error_out=False
-    )
-    
-    orders = pagination.items
-    
-    return render_template('profile/orders.html', orders=orders, pagination=pagination)
-
-@main.route('/profile/addresses')
-@login_required
-def profile_addresses():
-    """Render the addresses page"""
-    # Get user's addresses
-    addresses = Address.query.filter_by(user_id=current_user.id).order_by(Address.is_default.desc()).all()
-    
-    return render_template('profile/addresses.html', addresses=addresses)
-
-@main.route('/profile/settings')
-@login_required
-def profile_settings():
-    """Render the settings page"""
-    return render_template('profile/settings.html')
-
-@main.route('/order/confirmation/<order_id>')
-@login_required
-def order_confirmation(order_id):
-    """Render the order confirmation page"""
-    # Remove "ORD" prefix if present and convert to integer
-    if order_id.startswith('ORD'):
-        order_id = order_id[3:]
-    
-    try:
-        order_id_int = int(order_id)
-    except ValueError:
-        flash('Invalid order ID', 'error')
-        return redirect(url_for('main.profile_orders'))
-    
-    # Get order
-    order = Order.query.filter_by(id=order_id_int, user_id=current_user.id).first_or_404()
-    
-    # Format order ID
-    formatted_order_id = f"ORD{order.id:08d}"
-    
-    return render_template('order/confirmation.html', order=order, formatted_order_id=formatted_order_id)
-
-@main.route('/order/<order_id>')
-@login_required
-def order_details(order_id):
-    """Render the order details page"""
-    # Remove "ORD" prefix if present and convert to integer
-    if order_id.startswith('ORD'):
-        order_id = order_id[3:]
-    
-    try:
-        order_id_int = int(order_id)
-    except ValueError:
-        flash('Invalid order ID', 'error')
-        return redirect(url_for('main.profile_orders'))
-    
-    # Get order
-    order = Order.query.filter_by(id=order_id_int, user_id=current_user.id).first_or_404()
-    
-    # Format order ID
-    formatted_order_id = f"ORD{order.id:08d}"
-    
-    # Get shipping address
-    shipping_address = Address.query.get(order.shipping_address_id)
-    
-    return render_template(
-        'order/details.html', 
-        order=order, 
-        formatted_order_id=formatted_order_id,
-        shipping_address=shipping_address
-    )
-
-@main.route('/about')
-def about():
-    """Render the about page"""
-    return render_template('about.html')
-
-@main.route('/contact')
-def contact():
-    """Render the contact page"""
-    return render_template('contact.html')
-
-@main.route('/search')
-def search():
-    """Handle search requests"""
-    query = request.args.get('q', '')
-    if not query:
+@auth.route('/login', methods=['GET', 'POST'])
+def login():
+    """Render the login page and handle login requests"""
+    # If already logged in, redirect to home
+    if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     
-    return redirect(url_for('main.menu', search=query))
-
-@main.route('/api/coupon/apply', methods=['POST'])
-def apply_coupon():
-    """API endpoint to apply a coupon code"""
-    data = request.get_json()
-    code = data.get('code', '').upper()
-    
-    # Find discount by code
-    discount = Discount.query.filter_by(code=code, is_active=True).first()
-    
-    if not discount:
-        return jsonify({
-            'success': False,
-            'message': 'Invalid coupon code'
-        })
-    
-    # Check if discount is valid (date range)
-    now = datetime.utcnow()
-    if discount.start_date > now or (discount.end_date and discount.end_date < now):
-        return jsonify({
-            'success': False,
-            'message': 'This coupon has expired'
-        })
-    
-    # Calculate discount amount
-    if current_user.is_authenticated:
-        # Get cart total
-        cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
-        cart_total = sum(float(item.product.price) * item.quantity for item in cart_items)
+    if request.method == 'POST':
+        # If it's an AJAX request
+        if request.is_json:
+            data = request.get_json()
+            email = data.get('email', '')
+            password = data.get('password', '')
+            remember = data.get('remember', False)
+            
+            # Validate input
+            if not email or not password:
+                return jsonify({'success': False, 'message': 'Please enter email and password'})
+            
+            # Find user by email
+            user = User.query.filter_by(email=email).first()
+            
+            if not user or not user.check_password(password):
+                return jsonify({'success': False, 'message': 'Invalid email or password'})
+            
+            # Log in the user
+            login_user(user, remember=remember)
+            
+            return jsonify({'success': True, 'redirect': url_for('main.index')})
         
-        # Check minimum purchase requirement
-        if discount.min_purchase and cart_total < float(discount.min_purchase):
-            return jsonify({
-                'success': False,
-                'message': f'Minimum purchase of ₹{float(discount.min_purchase)} required'
-            })
-        
-        # Calculate discount
-        if discount.is_percentage:
-            discount_amount = cart_total * (float(discount.amount) / 100)
+        # If it's a regular form submission
         else:
-            discount_amount = float(discount.amount)
-        
-        # Ensure discount doesn't exceed cart total
-        if discount_amount > cart_total:
-            discount_amount = cart_total
-        
-        # Store discount in session
-        session['discount_code'] = code
-        session['discount_amount'] = discount_amount
-        
-        # Return discount info
-        return jsonify({
-            'success': True,
-            'message': f'Coupon applied: {discount.description}',
-            'discount': round(discount_amount)
-        })
-    else:
-        return jsonify({
-            'success': False,
-            'message': 'You must be logged in to apply a coupon'
-        })
+            email = request.form.get('email')
+            password = request.form.get('password')
+            remember = True if request.form.get('remember') else False
+            
+            # Validate input
+            if not email or not password:
+                flash('Please enter email and password', 'error')
+                return render_template('login.html')
+            
+            # Find user by email
+            user = User.query.filter_by(email=email).first()
+            
+            if not user or not user.check_password(password):
+                flash('Invalid email or password', 'error')
+                return render_template('login.html')
+            
+            # Log in the user
+            login_user(user, remember=remember)
+            
+            return redirect(url_for('main.index'))
+    
+    # GET request - render login form
+    return render_template('login.html')
 
-# Error handlers
-@main.app_errorhandler(404)
-def page_not_found(e):
-    return render_template('errors/404.html'), 404
+@auth.route('/register', methods=['GET', 'POST'])
+def register():
+    """Render the registration page and handle registration requests"""
+    # If already logged in, redirect to home
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    
+    if request.method == 'POST':
+        # If it's an AJAX request
+        if request.is_json:
+            data = request.get_json()
+            name = data.get('name', '')
+            email = data.get('email', '')
+            phone = data.get('phone', '')
+            password = data.get('password', '')
+            confirm_password = data.get('confirm_password', '')
+            terms = data.get('terms', False)
+            
+            # Validate input
+            if not name or not email or not password:
+                return jsonify({'success': False, 'message': 'Please fill in all required fields'})
+            
+            if password != confirm_password:
+                return jsonify({'success': False, 'message': 'Passwords do not match'})
+            
+            if not terms:
+                return jsonify({'success': False, 'message': 'You must agree to the terms and conditions'})
+            
+            # Validate email format
+            if not validate_email(email):
+                return jsonify({'success': False, 'message': 'Invalid email address'})
+            
+            # Check if email already exists
+            if User.query.filter_by(email=email).first():
+                return jsonify({'success': False, 'message': 'Email already registered'})
+            
+            # Validate password strength
+            if not validate_password(password):
+                return jsonify({
+                    'success': False, 
+                    'message': 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character'
+                })
+            
+            # Create new user
+            new_user = User(email=email, password=password, name=name, phone=phone)
+            
+            # Add to database
+            db.session.add(new_user)
+            db.session.commit()
+            
+            # Log in the new user
+            login_user(new_user)
+            
+            return jsonify({'success': True, 'redirect': url_for('main.index')})
+        
+        # If it's a regular form submission
+        else:
+            name = request.form.get('name')
+            email = request.form.get('email')
+            phone = request.form.get('phone')
+            password = request.form.get('password')
+            confirm_password = request.form.get('confirm-password')
+            terms = True if request.form.get('terms') else False
+            
+            # Validate input
+            if not name or not email or not password:
+                flash('Please fill in all required fields', 'error')
+                return render_template('register.html')
+            
+            if password != confirm_password:
+                flash('Passwords do not match', 'error')
+                return render_template('register.html')
+            
+            if not terms:
+                flash('You must agree to the terms and conditions', 'error')
+                return render_template('register.html')
+            
+            # Validate email format
+            if not validate_email(email):
+                flash('Invalid email address', 'error')
+                return render_template('register.html')
+            
+            # Check if email already exists
+            if User.query.filter_by(email=email).first():
+                flash('Email already registered', 'error')
+                return render_template('register.html')
+            
+            # Validate password strength
+            if not validate_password(password):
+                flash('Password must be at least 8 characters and include uppercase, lowercase, number, and special character', 'error')
+                return render_template('register.html')
+            
+            # Create new user
+            new_user = User(email=email, password=password, name=name, phone=phone)
+            
+            # Add to database
+            db.session.add(new_user)
+            db.session.commit()
+            
+            # Log in the new user
+            login_user(new_user)
+            
+            return redirect(url_for('main.index'))
+    
+    # GET request - render registration form
+    return render_template('register.html')
 
-@main.app_errorhandler(500)
-def server_error(e):
-    return render_template('errors/500.html'), 500
+@auth.route('/logout')
+@login_required
+def logout():
+    """Log out the current user"""
+    logout_user()
+    
+    # If it's an AJAX request
+    if request.is_json:
+        return jsonify({'success': True})
+    
+    # Regular request
+    return redirect(url_for('main.index'))
 
-# Custom template filters
-@main.app_template_filter('thousands_separator')
-def thousands_separator(value):
-    """Add thousands separator to number"""
-    return "{:,}".format(value)
+@auth.route('/check-email', methods=['POST'])
+def check_email():
+    """Check if an email is already registered"""
+    data = request.get_json()
+    email = data.get('email', '')
+    
+    if not email or not validate_email(email):
+        return jsonify({'valid': False, 'message': 'Invalid email address'})
+    
+    user = User.query.filter_by(email=email).first()
+    
+    if user:
+        return jsonify({'valid': False, 'message': 'Email already registered'})
+    
+    return jsonify({'valid': True})
+
+@auth.route('/check-password-strength', methods=['POST'])
+def check_password_strength():
+    """Check the strength of a password"""
+    data = request.get_json()
+    password = data.get('password', '')
+    
+    if not password:
+        return jsonify({'strength': 'weak', 'valid': False})
+    
+    strength = get_password_strength(password)
+    valid = validate_password(password)
+    
+    return jsonify({'strength': strength, 'valid': valid})
