@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Settings - Happy Cake{% endblock %}
+
+{% block content %}
+<h2 class="section-header">Account Settings</h2>
+
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="settings-container">
+            <div class="settings-section">
+                <h3>Personal Information</h3>
+                <form id="profile-settings-form">
+                    <div class="form-group">
+                        <label for="settings-name">Full Name</label>
+                        <input type="text" id="settings-name" value="{{ current_user.name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-email">Email</label>
+                        <input type="email" id="settings-email" value="{{ current_user.email }}" disabled>
+                        <p class="form-help">Email cannot be changed. Please contact support for assistance.</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-phone">Phone</label>
+                        <input type="tel" id="settings-phone" value="{{ current_user.phone }}">
+                    </div>
+                    <button type="submit" class="save-settings-btn">Save Changes</button>
+                </form>
+            </div>
+            
+            <div class="settings-section">
+                <h3>Security</h3>
+                <form id="password-change-form">
+                    <div class="form-group">
+                        <label for="current-password">Current Password</label>
+                        <input type="password" id="current-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <input type="password" id="new-password" required>
+                        <div class="password-strength">
+                            <div class="password-strength-meter"></div>
+                        </div>
+                        <p class="form-help">Password must be at least 8 characters and include a number and a special character.</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm New Password</label>
+                        <input type="password" id="confirm-password" required>
+                    </div>
+                    <button type="submit" class="change-password-btn">Change Password</button>
+                </form>
+            </div>
+            
+            <div class="settings-section">
+                <h3>Account Actions</h3>
+                <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .settings-container {
+        padding: 30px;
+    }
+    
+    .settings-section {
+        margin-bottom: 40px;
+    }
+    
+    .settings-section h3 {
+        font-size: 20px;
+        margin-bottom: 20px;
+        color: var(--primary-brown);
+        border-bottom: 2px solid var(--primary-pink);
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: var(--primary-brown);
+    }
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="password"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--medium-gray);
+        border-radius: 10px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+    
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="password"]:focus {
+        border-color: var(--primary-pink);
+        outline: none;
+    }
+    
+    input[disabled] {
+        background-color: var(--light-

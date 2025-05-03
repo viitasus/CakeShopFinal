@@ -1,0 +1,184 @@
+/* Authentication Styles for Happy Cake */
+
+.auth-page .main-content {
+    display: block;
+}
+
+/* Login and Registration Form Container */
+.auth-container {
+    max-width: 500px;
+    margin: 40px auto;
+    background-color: var(--soft-white);
+    border-radius: 20px;
+    box-shadow: 0 5px 15px var(--shadow-color);
+    padding: 30px;
+}
+
+.auth-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: var(--primary-brown);
+    font-size: 28px;
+}
+
+.auth-container .form-group {
+    margin-bottom: 20px;
+}
+
+.auth-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--primary-brown);
+}
+
+.auth-container input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--medium-gray);
+    border-radius: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.auth-container input:focus {
+    border-color: var(--primary-pink);
+    box-shadow: 0 0 0 2px rgba(255, 173, 185, 0.3);
+    outline: none;
+}
+
+.auth-button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-pink);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    margin-top: 10px;
+}
+
+.auth-button:hover {
+    background-color: var(--primary-pink-hover);
+    transform: translateY(-2px);
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    color: var(--dark-gray);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.auth-divider span {
+    padding: 0 10px;
+    font-size: 14px;
+}
+
+.auth-switch {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--dark-gray);
+}
+
+.auth-switch a {
+    color: var(--primary-pink-hover);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.auth-switch a:hover {
+    color: var(--primary-brown);
+    text-decoration: underline;
+}
+
+/* Checkbox styling */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+}
+
+.checkbox-group label {
+    margin-bottom: 0;
+}
+
+/* Password strength meter */
+.password-strength {
+    margin-top: 5px;
+    height: 5px;
+    border-radius: 5px;
+    background-color: var(--medium-gray);
+    position: relative;
+    overflow: hidden;
+}
+
+.password-strength-meter {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    width: 0;
+}
+
+.strength-weak {
+    background-color: var(--danger-red);
+    width: 33%;
+}
+
+.strength-medium {
+    background-color: var(--warning-orange);
+    width: 66%;
+}
+
+.strength-strong {
+    background-color: var(--success-green);
+    width: 100%;
+}
+
+.password-tips {
+    margin-top: 5px;
+    font-size: 12px;
+    color: var(--dark-gray);
+}
+
+/* Continue shopping button */
+.continue-shopping-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: transparent;
+    color: var(--primary-brown);
+    border: 1px solid var(--primary-pink);
+    border-radius: 10px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.continue-shopping-btn:hover {
+    background-color: rgba(255, 173, 185, 0.1);
+}
+
+/* Responsive styles */
+@media (max-width: 600px) {
+    .auth-container {
+        width: 90%;
+        padding: 20px;
+    }
+}

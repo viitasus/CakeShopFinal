@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - Happy Cake{% endblock %}
+
+{% block content %}
+<h2 class="section-header">Checkout</h2>
+
+<div class="checkout-container">
+    <!-- Checkout Steps -->
+    <div class="checkout-steps">
+        <div class="step active">
+            <div class="step-number">1</div>
+            <div class="step-label">Shipping</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-label">Payment</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-label">Confirmation</div>
+        </div>
+    </div>
+
+    <!-- Checkout Form -->
+    <div class="checkout-form-container">
+        <!-- Shipping Address Step -->
+        <div class="checkout-step-content active" id="shipping-step">
+            <h3>Select Delivery Address</h3>
+            
+            <div class="address-selection" id="addresses-container">
+                <!-- Addresses will be loaded dynamically -->
+                <div class="loading-placeholder"></div>
+            </div>
+            
+            <div class="new-address-form" style="display: none;" id="add-address-form">
+                <h4>Add New Address</h4>
+                <form id="new-address-form">
+                    <div class="form-group">
+                        <label for="address-label">Address Label</label>
+                        <input type="text" id="address-label" placeholder="e.g., Home, Office" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address-line1">Address Line 1</label>
+                        <input type="text" id="address-line1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address-line2">Address Line 2 (Optional)</label>
+                        <input type="text" id="address-line2">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="address-city">City</label>
+                            <input type="text" id="address-city" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="address-state">State</label>
+                            <input type="text" id="address-state" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="address-postal-code">Postal Code</label>
+                            <input type="text" id="address-postal-code" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="address-phone">Phone (Optional)</label>
+                            <input type="tel" id="address-phone">
+                        </div>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="address-default">
+                        <label for="address-default">Set as default address</label>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" class="cancel-btn" id="cancel-address-btn">Cancel</button>
+                        <button type="submit" class="save-address-btn">Save Address</button>
+                    </div>
+                </form>
+            </div>
+            
+            <button class="add-address-btn" id="show-address-form"><i class="fas fa-plus"></i> Add New Address</button>
+            
+            <div class="delivery-options">
+                <h3>Delivery Information</h3>
+                <div class="form-group">
+                    <label for="delivery-date">Delivery Date</label>
+                    <input type="date" id="delivery-date" required>
+                    <p class="form-help">We need at least 24 hours for preparation. Choose a date at least one day from now.</p>
+                </div>
+                <div class="form-group">
+                    <label for="special-instructions">Special Instructions (Optional)</label>
+                    <textarea id="special-instructions" placeholder="Any special instructions for delivery or cake preparation"></textarea>
+                </div>
+            </div>
+            
+            <div class="form-buttons">
+                <a href="{{ url_for('main.cart') }}" class="back-to-cart-btn">Back to Cart</a>
+                <button class="next-step-btn" id="shipping-next-btn">Continue to Payment</button>
+            </div>
+        </div>
+        
+        <!-- Payment Step -->
+        <div class="checkout-step-content" id="payment-step">
+            <h3>Select Payment Method</h3>
+            
+            <div class="payment-methods">
+                <div class="payment-method">
+                    <input type="radio" name="payment-method" id="payment-cod" value="cod" checked>
+                    <label for="payment-cod">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Cash on Delivery</span>
+                    </label>
+                </div>
+                <div class="payment-method">
+                    <input type="radio" name="payment-method" id="payment-card" value="card">
+                    <label for="payment-card">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Credit/Debit Card</span>
+                    </label>
+                </div>
+                <div class="payment-method">
+                    <input type="radio" name="payment-method" id="payment-upi" value="upi">
+                    <label for="payment-upi">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>UPI Payment</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Card Payment Form (hidden by default) -->
+            <div class="card-payment-form" style="display: none;" id="card-payment-form">
+                <div class="form-group">
+                    <label for="card-number">Card Number</label>
+                    <input type="text" id="card-number" placeholder="1234 5678 9012 3456">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="card-expiry">Expiry Date</label>
+                        <input type="text" id="card-expiry" placeholder="MM/YY">
+                    </div>
+                    <div class="form-group">
+                        <label for="card-cvv">CVV</label>
+                        <input type="text" id="card-cvv" placeholder="123">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="card-name">Cardholder Name</label>
+                    <input type="text" id="card-name" placeholder="Name on card">
+                </div>
+            </div>
+            
+            <!-- UPI Payment Form (hidden by default) -->
+            <div class="upi-payment-form" style="display: none;" id="upi-payment-form">
+                <div class="form-group">
+                    <label for="upi-id">UPI ID</label>
+                    <input type="text" id="upi-id" placeholder="yourname@upi">
+                </div>
+            </div>
+            
+            <div class="form-buttons">
+                <button class="back-step-btn" id="payment-back-btn">Back to Shipping</button>
+                <button class="next-step-btn" id="payment-next-btn">Complete Order</button>
+            </div>
+        </div>
+        
+        <!-- Confirmation Step -->
+        <div class="checkout-step-content" id="confirmation-step">
+            <h3>Order Confirmation</h3>
+            
+            <div class="order-processing">
+                <div class="loading-spinner"></div>
+                <p>Processing your order...</p>
+            </div>
+            
+            <div class="order-confirmation" style="display: none;">
+                <div class="order-success">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Thank You for Your Order!</h3>
+                    <p>Your order has been placed successfully.</p>
+                    <p>Order Number: <span id="order-number">ORD12345678</span></p>
+                </div>
+                
+                <div class="order-details">
+                    <h4>Order Details</h4>
+                    <div class="order-summary" id="order-summary">
+                        <!-- Order summary will be populated dynamically -->
+                    </div>
+                </div>
+                
+                <div class="form-buttons">
+                    <a href="{{ url_for('main.menu') }}" class="continue-shopping-btn">Continue Shopping</a>
+                    <a href="#" id="view-order-btn" class="view-order-btn">View Order</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Order Summary -->
+    <div class="order-summary-sidebar">
+        <h3>Order Summary</h3>
+        <div class="cart-items-summary" id="cart-items-summary">
+            <!-- Cart items will be loaded dynamically -->
+            <div class="loading-placeholder"></div>
+        </div>
+        <div class="summary-totals">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="summary-subtotal">₹0</span>
+            </div>
+            <div class="summary-row">
+                <span>Delivery Fee</span>
+                <span>₹50</span>
+            </div>
+            <div class="summary-row discount">
+                <span>Discount</span>
+                <span id="summary-discount">-₹0</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span id="summary-total">₹50</span>
+            </div>
+        </div>
+        <div class="coupon-container">
+            <input type="text" id="coupon-code" placeholder="Enter coupon code">
+            <button id="apply-coupon-btn">Apply</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/checkout.js') }}"></script>
+{% endblock %}

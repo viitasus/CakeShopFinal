@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Happy Cake - Delicious Cakes in Pune{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-banner">
+    <div class="hero-text">
+        <h2>Welcome to<br>Happy Cake</h2>
+        <p>Delicious cakes for every occasion, made with love and the finest ingredients.</p>
+        <a href="{{ url_for('main.menu') }}" class="order-now-btn">Order Now</a>
+    </div>
+    <div class="hero-image">
+        <img src="{{ url_for('static', filename='images/cakes/main_cake.png') }}" alt="Delicious cake">
+    </div>
+</div>
+
+<!-- Popular Cakes Section -->
+<h2 class="section-header">Our Popular Cakes</h2>
+<div class="cake-cards">
+    {% for product in products %}
+    <div class="cake-card">
+        <img src="{{ product.image_path or url_for('static', filename='images/cakes/' + product.slug + '.png') }}" alt="{{ product.name }}">
+        <h4>{{ product.name }}</h4>
+        <p class="price">₹{{ product.price|int|thousands_separator }}</p>
+        <div class="card-actions">
+            <a href="{{ url_for('main.product', product_slug=product.slug) }}" class="view-details-btn">View Details</a>
+            <button class="add-to-cart-btn" 
+                    data-cake-id="{{ product.slug }}" 
+                    data-cake-name="{{ product.name }}" 
+                    data-price="{{ product.price }}">
+                Add to Cart
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- About Section (Mini) -->
+<div class="home-about-section">
+    <h2 class="section-header">Why Choose Happy Cake?</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <i class="fas fa-birthday-cake"></i>
+            <h3>Fresh Ingredients</h3>
+            <p>We use only the freshest and highest quality ingredients for all our cakes.</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-truck"></i>
+            <h3>Fast Delivery</h3>
+            <p>Same-day delivery available for orders placed before noon.</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-heart"></i>
+            <h3>Made with Love</h3>
+            <p>Every cake is crafted with passion and attention to detail.</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-star"></i>
+            <h3>Custom Designs</h3>
+            <p>Create your own unique cake for any special occasion.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Testimonials Section -->
+<div class="testimonials-section">
+    <h2 class="section-header">What Our Customers Say</h2>
+    <div class="testimonials-slider">
+        <div class="testimonial">
+            <div class="testimonial-content">
+                <p>"The chocolate cake was absolutely divine! Everyone at my daughter's birthday party loved it."</p>
+            </div>
+            <div class="testimonial-author">
+                <img src="{{ url_for('static', filename='images/testimonials/customer1.jpg') }}" alt="Customer">
+                <div>
+                    <h4>Priya Sharma</h4>
+                    <p>Pune</p>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial">
+            <div class="testimonial-content">
+                <p>"I ordered a wedding cake and it was stunning! Not only beautiful but delicious too. Highly recommend!"</p>
+            </div>
+            <div class="testimonial-author">
+                <img src="{{ url_for('static', filename='images/testimonials/customer2.jpg') }}" alt="Customer">
+                <div>
+                    <h4>Raj & Neha</h4>
+                    <p>Mumbai</p>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial">
+            <div class="testimonial-content">
+                <p>"Their strawberry cake is the best I've ever had. Fresh, light, and not too sweet. Perfect!"</p>
+            </div>
+            <div class="testimonial-author">
+                <img src="{{ url_for('static', filename='images/testimonials/customer3.jpg') }}" alt="Customer">
+                <div>
+                    <h4>Amit Patel</h4>
+                    <p>Pune</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="cta-section">
+    <h2>Ready to order your delicious cake?</h2>
+    <p>Choose from our wide variety of cakes for birthdays, weddings, and special occasions.</p>
+    <a href="{{ url_for('main.menu') }}" class="cta-button">Browse Our Menu</a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+{% endblock %}

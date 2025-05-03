@@ -1,0 +1,412 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - Happy Cake{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .profile-card {
+        background-color: var(--soft-white);
+        border-radius: 20px;
+        box-shadow: 0 5px 15px var(--shadow-color);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        padding: 30px;
+        border-bottom: 1px solid var(--medium-gray);
+        background-color: rgba(255, 173, 185, 0.1);
+        position: relative;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: var(--primary-pink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .profile-avatar i {
+        font-size: 40px;
+        color: var(--soft-white);
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-info h3 {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+
+    .profile-info p {
+        color: var(--dark-gray);
+    }
+
+    .change-pic-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        background-color: var(--primary-pink);
+        color: white;
+        border-radius: 20px;
+        margin-top: 10px;
+        transition: background-color 0.3s;
+    }
+
+    .change-pic-btn:hover {
+        background-color: var(--primary-pink-hover);
+    }
+
+    .profile-loading {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        background-color: var(--soft-white);
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 14px;
+    }
+
+    .dashboard-welcome {
+        padding: 30px;
+        text-align: center;
+    }
+
+    .dashboard-welcome h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .dashboard-welcome p {
+        color: var(--dark-gray);
+        margin-bottom: 20px;
+    }
+
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        padding: 0 30px 30px;
+    }
+
+    .stat-card {
+        background-color: white;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        font-size: 30px;
+        color: var(--primary-pink);
+        margin-bottom: 10px;
+    }
+
+    .stat-value {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--primary-brown);
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        color: var(--dark-gray);
+        font-size: 14px;
+    }
+
+    .recent-activity {
+        padding: 0 30px 30px;
+    }
+
+    .recent-activity h3 {
+        font-size: 20px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid var(--primary-pink);
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+
+    .activity-list {
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .activity-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--light-gray);
+        display: flex;
+        align-items: center;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgba(255, 173, 185, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+    }
+
+    .activity-icon i {
+        color: var(--primary-pink);
+        font-size: 18px;
+    }
+
+    .activity-details {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .activity-time {
+        font-size: 12px;
+        color: var(--dark-gray);
+    }
+
+    .quick-actions {
+        padding: 0 30px 30px;
+    }
+
+    .quick-actions h3 {
+        font-size: 20px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid var(--primary-pink);
+        padding-bottom: 10px;
+        display: inline-block;
+    }
+
+    .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .action-btn {
+        background-color: white;
+        border-radius: 15px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s, background-color 0.3s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .action-btn:hover {
+        background-color: var(--primary-pink);
+        transform: translateY(-5px);
+    }
+
+    .action-btn:hover i,
+    .action-btn:hover span {
+        color: white;
+    }
+
+    .action-btn i {
+        font-size: 24px;
+        color: var(--primary-pink);
+        margin-bottom: 10px;
+        transition: color 0.3s;
+    }
+
+    .action-btn span {
+        font-weight: 600;
+        color: var(--primary-brown);
+        transition: color 0.3s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 class="section-header">My Profile</h2>
+
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user-circle"></i>
+                <!-- Hidden file input for profile picture -->
+                <input type="file" id="profile-pic-input" style="display: none;" accept="image/*">
+            </div>
+            <div class="profile-info">
+                <h3>Welcome, <span id="profile-name">{{ current_user.name }}</span></h3>
+                <p id="profile-email">{{ current_user.email }}</p>
+                <button id="change-profile-pic-btn" class="change-pic-btn">Change Picture</button>
+            </div>
+            <div id="profile-loading" class="profile-loading" style="display: none;">
+                <span class="loading-spinner"></span> Updating...
+            </div>
+        </div>
+        
+        <div class="dashboard-welcome">
+            <h3>Welcome to Your Dashboard</h3>
+            <p>Manage your orders, addresses, and account settings from here.</p>
+        </div>
+        
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="stat-value">{{ orders|length }}</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="stat-value">{{ addresses|length }}</div>
+                <div class="stat-label">Saved Addresses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="stat-value">0</div>
+                <div class="stat-label">Favorite Cakes</div>
+            </div>
+        </div>
+        
+        <div class="recent-activity">
+            <h3>Recent Activity</h3>
+            <div class="activity-list">
+                {% if orders %}
+                    {% for order in orders[:3] %}
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div class="activity-details">
+                            <div class="activity-title">Order #{{ order.order_id }}</div>
+                            <div class="activity-desc">Status: {{ order.status }}</div>
+                            <div class="activity-time">{{ order.order_date }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="activity-details">
+                            <div class="activity-title">No recent activity</div>
+                            <div class="activity-desc">Your activity will appear here</div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="action-buttons">
+                <a href="{{ url_for('main.menu') }}" class="action-btn">
+                    <i class="fas fa-birthday-cake"></i>
+                    <span>Browse Cakes</span>
+                </a>
+                <a href="{{ url_for('main.profile_orders') }}" class="action-btn">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>My Orders</span>
+                </a>
+                <a href="{{ url_for('main.profile_addresses') }}" class="action-btn">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>My Addresses</span>
+                </a>
+                <a href="{{ url_for('main.profile_settings') }}" class="action-btn">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+<script>
+    // Profile picture change functionality
+    const profilePicInput = document.getElementById('profile-pic-input');
+    const changeProfilePicBtn = document.getElementById('change-profile-pic-btn');
+    const profileAvatar = document.querySelector('.profile-avatar');
+    
+    if (changeProfilePicBtn && profilePicInput) {
+        changeProfilePicBtn.addEventListener('click', function() {
+            profilePicInput.click();
+        });
+        
+        profilePicInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                
+                // Check if it's an image
+                if (!file.type.match('image.*')) {
+                    showNotification('Please select an image file', 'error');
+                    return;
+                }
+                
+                // Create a FileReader to read the file
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    // Remove existing icon
+                    const icon = profileAvatar.querySelector('i');
+                    if (icon) icon.remove();
+                    
+                    // Remove existing image if any
+                    const existingImg = profileAvatar.querySelector('img');
+                    if (existingImg) existingImg.remove();
+                    
+                    // Create new image
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    profileAvatar.appendChild(img);
+                    
+                    // Show success message
+                    showNotification('Profile picture updated!', 'success');
+                };
+                
+                // Read the file as Data URL
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+</script>
+{% endblock %}

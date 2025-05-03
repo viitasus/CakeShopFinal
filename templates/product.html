@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ cake.name }} | Happy Cake</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Baloo+2:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Top Navigation Bar -->
+        <header class="top-bar">
+            <div class="logo">
+                <a href="/">
+                    <img src="/images/happy_cake_logo.svg" alt="Happy Cake Logo">
+                    <h1>HAPPY CAKE</h1>
+                </a>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search for cakes...">
+                <button class="search-button"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="user-controls">
+                <button class="cart-button" id="cart-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count" class="cart-count">{{ cart_count if cart_count else '0' }}</span>
+                </button>
+                <button class="user-button" id="profile-btn"><i class="fas fa-user"></i></button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Left Sidebar Navigation -->
+            <nav class="sidebar">
+                <ul>
+                    <li data-section="home"><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                    <li data-section="menu" class="active"><a href="/menu"><i class="fas fa-list"></i> Menu</a></li>
+                    <li data-section="order"><a href="/order"><i class="fas fa-shopping-cart"></i> Order Now</a></li>
+                    <li data-section="about"><a href="/about"><i class="fas fa-info-circle"></i> About Us</a></li>
+                    <li data-section="contact"><a href="/contact"><i class="fas fa-envelope"></i> Contact</a></li>
+                    <li data-section="profile"><a href="/profile"><i class="fas fa-user-circle"></i> My Profile</a></li>
+                    <li data-section="cart"><a href="/cart"><i class="fas fa-shopping-basket"></i> My Cart</a></li>
+                </ul>
+            </nav>
+
+            <!-- Main Content Area -->
+            <main class="content">
+                <div class="product-page">
+                    <!-- Breadcrumb -->
+                    <div class="breadcrumb">
+                        <a href="/">Home</a> &gt; 
+                        <a href="/menu">Menu</a> &gt; 
+                        <span>{{ cake.name }}</span>
+                    </div>
+
+                    <!-- Product Details -->
+                    <div class="product-details">
+                        <div class="product-image">
+                            <img src="{{ cake.image }}" alt="{{ cake.name }}">
+                        </div>
+                        <div class="product-info">
+                            <h1>{{ cake.name }}</h1>
+                            <div class="product-price">{{ cake.price }}</div>
+                            <div class="product-description">
+                                <p>{{ cake.description }}</p>
+                            </div>
+                            
+                            <!-- Size Selection -->
+                            <div class="product-options">
+                                <div class="option-group">
+                                    <label>Size</label>
+                                    <div class="option-buttons size-buttons">
+                                        <button class="option-btn active" data-size="small" data-price="{{ cake.price_value }}">Small (6")</button>
+                                        <button class="option-btn" data-size="medium" data-price="{{ cake.price_value + 200 }}">Medium (8")</button>
+                                        <button class="option-btn" data-size="large" data-price="{{ cake.price_value + 400 }}">Large (10")</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Optional Message -->
+                                <div class="option-group">
+                                    <label for="cake-message">Custom Message (Optional)</label>
+                                    <input type="text" id="cake-message" placeholder="Happy Birthday!" maxlength="30">
+                                    <div class="message-info">Up to 30 characters</div>
+                                </div>
+                                
+                                <!-- Quantity -->
+                                <div class="option-group">
+                                    <label>Quantity</label>
+                                    <div class="quantity-control">
+                                        <button class="quantity-btn minus-btn"><i class="fas fa-minus"></i></button>
+                                        <input type="number" id="product-quantity" value="1" min="1" max="10">
+                                        <button class="quantity-btn plus-btn"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Add to Cart Button -->
+                            <button id="add-to-cart-btn" class="add-to-cart-btn" data-cake-id="{{ cake.id }}" data-cake-name="{{ cake.name }}" data-cake-price="{{ cake.price_value }}">
+                                <i class="fas fa-cart-plus"></i> Add to Cart
+                            </button>
+                            
+                            <!-- Additional Info -->
+                            <div class="product-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-truck"></i> Free delivery on orders over ₹2,000
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i> Order by 4 PM for next-day delivery
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-birthday-cake"></i> Category: {{ ', '.join(cake.categories) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Related Products -->
+                    <div class="related-products">
+                        <h2>You May Also Like</h2>
+                        <div class="cake-cards">
+                            {% for related_cake in related_cakes %}
+                            <div class="cake-card">
+                                <img src="{{ related_cake.image }}" alt="{{ related_cake.name }}">
+                                <h4>{{ related_cake.name }}</h4>
+                                <p>{{ related_cake.price }}</p>
+                                <a href="/cake/{{ related_cake.id }}" class="view-details-btn">View Details</a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="/images/happy_cake_logo.svg" alt="Happy Cake Logo">
+                    <h2>HAPPY CAKE</h2>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h3>Shop</h3>
+                        <ul>
+                            <li><a href="/menu">All Cakes</a></li>
+                            <li><a href="/menu?category=birthday">Birthday Cakes</a></li>
+                            <li><a href="/menu?category=wedding">Wedding Cakes</a></li>
+                            <li><a href="/menu?category=seasonal">Seasonal Cakes</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3>About</h3>
+                        <ul>
+                            <li><a href="/about">Our Story</a></li>
+                            <li><a href="/contact">Contact Us</a></li>
+                            <li><a href="/careers">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3>Help</h3>
+                        <ul>
+                            <li><a href="/faq">FAQ</a></li>
+                            <li><a href="/shipping">Shipping & Delivery</a></li>
+                            <li><a href="/returns">Returns & Refunds</a></li>
+                            <li><a href="/privacy">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3>Contact</h3>
+                        <ul>
+                            <li><i class="fas fa-map-marker-alt"></i> 123 Cake Street, Sweet City, MH 400001</li>
+                            <li><i class="fas fa-phone"></i> +91 98765 43210</li>
+                            <li><i class="fas fa-envelope"></i> info@happycake.com</li>
+                        </ul>
+                        <div class="social-media">
+                            <a href="#"><i class="fab fa-facebook"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-pinterest"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Happy Cake. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/static/js/script.js"></script>
+    <script src="/static/js/cart.js"></script>
+</body>
+</html>

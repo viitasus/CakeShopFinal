@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+
+{% block title %}Menu - Happy Cake{% endblock %}
+
+{% block extra_css %}
+<style>
+    .loading-placeholder {
+        height: 200px;
+        background-color: var(--soft-white);
+        border-radius: 15px;
+        margin-bottom: 20px;
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { opacity: 0.6; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 class="section-header">Our Menu</h2>
+
+<!-- Menu Categories -->
+<div class="menu-categories">
+    <button class="menu-category {{ 'active' if not active_category else '' }}" data-category="all">All Cakes</button>
+    {% for category in categories %}
+    <button class="menu-category {{ 'active' if active_category == category.slug else '' }}" data-category="{{ category.slug }}">
+        {{ category.name }}
+    </button>
+    {% endfor %}
+</div>
+
+<!-- Search Results Info (hidden by default) -->
+<div id="search-results-info" style="display: none; margin-bottom: 20px;">
+    <h3>Search Results: <span id="search-query"></span></h3>
+    <p id="search-count"></p>
+    <button id="clear-search" class="clear-search-btn">Clear Search</button>
+</div>
+
+<!-- Cake Cards -->
+<div id="cake-cards-container" class="cake-cards">
+    <div class="loading-placeholder"></div>
+</div>
+
+<!-- No Results Message (hidden by default) -->
+<div id="no-results" style="display: none; text-align: center; padding: 50px 0;">
+    <h3>No cakes found</h3>
+    <p>Try another category or search term</p>
+</div>
+
+<!-- Modal for cake details -->
+<div id="cake-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <div class="modal-body">
+            <img id="modal-cake-image" src="" alt="Cake">
+            <div class="modal-cake-details">
+                <h3 id="modal-cake-name"></h3>
+                <p id="modal-cake-price" class="price"></p>
+                <p id="modal-cake-description"></p>
+                <div class="quantity-control">
+                    <label for="modal-cake-quantity">Quantity:</label>
+                    <div class="quantity-input">
+                        <button class="quantity-btn minus-btn"><i class="fas fa-minus"></i></button>
+                        <input type="number" id="modal-cake-quantity" value="1" min="1" max="10">
+                        <button class="quantity-btn plus-btn"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+                <button id="modal-add-to-cart" class="add-to-cart-btn" 
+                        data-cake-id="" 
+                        data-cake-name="" 
+                        data-price="">
+                    Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // DOM elements
+        const cakeCardsContainer = document.getElementById('cake-cards-container');
+        const categoryButtons = document.querySelectorAll('.menu-category');
+        const searchResultsInfo = document.getElementById('search-results-info');
+        const searchQuery = document.getElementById('search-query');
+        const searchCount = document.getElementById('search-count');
+        const clearSearchBtn = document.getElementById('clear-search');
+        const noResultsMessage = document.getElementById('no-results');
+        
+        // Get the search query from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchTerm = urlParams.get('search');
+        const categorySlug = urlParams.get('category');
+        
+        // Show search results info if search term exists
+        if (searchTerm) {
+            searchResultsInfo.style.display = 'block';
+            searchQuery.textContent = searchTerm;
+            
+            // Set active category to All Cakes
+            categoryButtons.forEach(button => {
+                button.classList.remove('active');
+                if (button.getAttribute('data-category') === 'all') {
+                    button.classList.add('active');
+                }
+            });
+        }
+        
+        // Clear search button
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', function() {
+                // Redirect to menu page without search parameter
+                window.location.href = '/menu';
+            });
+        }
+        
+        // Load cakes on page load
+        loadCakes(categorySlug, searchTerm);
+        
+        // Category filtering
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                
+                // Update active class
+                categoryButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Load cakes for selected category
+                loadCakes(category === 'all' ? null : category, searchTerm);
+                
+                // Update URL
+                const url = new URL(window.location);
+                if (category === 'all') {
+                    url.searchParams.delete('category');
+                } else {
+                    url.searchParams.set('category', category);
+                }
+                window.history.pushState({}, '', url);
+            });
+        });
+        
+        // Load cakes function
+        function loadCakes(category, search) {
+            // Show loading placeholder
+            cakeCardsContainer.innerHTML = '<div class="loading-placeholder"></div>';
+            
+            // Hide no results message
+            noResultsMessage.style.display = 'none';
+            
+            // Build API URL
+            let url = '/api/cakes';
+            const params = new URLSearchParams();
+            
+            if (category) {
+                params.append('category', category);
+            }
+            
+            if (search) {
+                params.append('search', search);
+            }
+            
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+            
+            // Fetch cakes data
+            fetch(url)
+                .then(response => response.json())
+                .then(cakes => {
+                    // Update search count if searching
+                    if (search) {
+                        searchCount.textContent = `Found ${cakes.length} cake${cakes.length !== 1 ? 's' : ''}`;
+                    }
+                    
+                    if (cakes.length === 0) {
+                        // Show no results message
+                        cakeCardsContainer.innerHTML = '';
+                        noResultsMessage.style.display = 'block';
+                        return;
+                    }
+                    
+                    // Render cakes
+                    let html = '';
+                    cakes.forEach(cake => {
+                        html += `
+                            <div class="cake-card">
+                                <img src="${cake.image}" alt="${cake.name}">
+                                <h4>${cake.name}</h4>
+                                <p class="price">${cake.price}</p>
+                                <div class="card-actions">
+                                    <button class="view-details-btn" data-cake-id="${cake.id}">View Details</button>
+                                    <button class="add-to-cart-btn" 
+                                            data-cake-id="${cake.id}" 
+                                            data-cake-name="${cake.name}" 
+                                            data-price="${cake.price_value}">
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    cakeCardsContainer.innerHTML = html;
+                    
+                    // Add event listeners to new buttons
+                    addEventListeners();
+                })
+                .catch(error => {
+                    console.error('Error loading cakes:', error);
+                    cakeCardsContainer.innerHTML = '<p class="error-message">Error loading cakes. Please try again later.</p>';
+                });
+        }
+        
+        // Add event listeners to dynamic elements
+        function addEventListeners() {
+            // View details buttons
+            const viewDetailsBtns = document.querySelectorAll('.view-details-btn');
+            viewDetailsBtns.forEach(button => {
+                button.addEventListener('click', function() {
+                    const cakeId = this.getAttribute('data-cake-id');
+                    openCakeModal(cakeId);
+                });
+            });
+            
+            // Add to cart buttons
+            const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
+            addToCartBtns.forEach(button => {
+                button.addEventListener('click', function() {
+                    const cakeId = this.getAttribute('data-cake-id');
+                    const cakeName = this.getAttribute('data-cake-name');
+                    const price = parseFloat(this.getAttribute('data-price'));
+                    
+                    // Add to cart
+                    addToCart(cakeId, cakeName, price, 1);
+                });
+            });
+        }
+        
+        // Open cake modal function
+        function openCakeModal(cakeId) {
+            // Fetch cake details
+            fetch(`/api/cake/${cakeId}`)
+                .then(response => response.json())
+                .then(cake => {
+                    // Populate modal
+                    const modal = document.getElementById('cake-modal');
+                    const modalImage = document.getElementById('modal-cake-image');
+                    const modalName = document.getElementById('modal-cake-name');
+                    const modalPrice = document.getElementById('modal-cake-price');
+                    const modalDescription = document.getElementById('modal-cake-description');
+                    const modalQuantity = document.getElementById('modal-cake-quantity');
+                    const modalAddToCartBtn = document.getElementById('modal-add-to-cart');
+                    
+                    modalImage.src = cake.image;
+                    modalName.textContent = cake.name;
+                    modalPrice.textContent = cake.price;
+                    modalDescription.textContent = cake.description;
+                    modalQuantity.value = 1;
+                    
+                    // Update add to cart button data attributes
+                    modalAddToCartBtn.setAttribute('data-cake-id', cake.id);
+                    modalAddToCartBtn.setAttribute('data-cake-name', cake.name);
+                    modalAddToCartBtn.setAttribute('data-price', cake.price_value);
+                    
+                    // Show modal
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Quantity control buttons
+                    const minusBtn = modal.querySelector('.minus-btn');
+                    const plusBtn = modal.querySelector('.plus-btn');
+                    
+                    minusBtn.addEventListener('click', function() {
+                        let quantity = parseInt(modalQuantity.value);
+                        if (quantity > 1) {
+                            modalQuantity.value = quantity - 1;
+                        }
+                    });
+                    
+                    plusBtn.addEventListener('click', function() {
+                        let quantity = parseInt(modalQuantity.value);
+                        if (quantity < 10) {
+                            modalQuantity.value = quantity + 1;
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading cake details:', error);
+                    showNotification('Error loading cake details', 'error');
+                });
+        }
+        
+        // Modal close button
+        const closeModal = document.querySelector('.close-modal');
+        const modal = document.getElementById('cake-modal');
+        
+        closeModal.addEventListener('click', function() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+    });
+</script>
+{% endblock %}

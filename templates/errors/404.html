@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Page Not Found - Happy Cake{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-content">
+        <div class="error-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <h2>404 - Page Not Found</h2>
+        <p>Oops! The page you're looking for doesn't exist.</p>
+        <p>The cake might have been eaten before you got here!</p>
+        <div class="error-actions">
+            <a href="{{ url_for('main.index') }}" class="btn-primary">Go to Home</a>
+            <a href="{{ url_for('main.menu') }}" class="btn-secondary">Browse Cakes</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .error-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 70vh;
+    }
+
+    .error-content {
+        text-align: center;
+        background-color: var(--soft-white);
+        padding: 50px;
+        border-radius: 20px;
+        box-shadow: 0 5px 15px var(--shadow-color);
+        max-width: 600px;
+    }
+
+    .error-icon {
+        font-size: 80px;
+        color: var(--primary-pink);
+        margin-bottom: 20px;
+    }
+
+    .error-content h2 {
+        font-size: 36px;
+        margin-bottom: 20px;
+        color: var(--primary-brown);
+    }
+
+    .error-content p {
+        margin-bottom: 10px;
+        font-size: 18px;
+        color: var(--dark-gray);
+    }
+
+    .error-actions {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .btn-primary {
+        padding: 12px 25px;
+        background-color: var(--primary-pink);
+        color: white;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-pink-hover);
+        transform: translateY(-3px);
+    }
+
+    .btn-secondary {
+        padding: 12px 25px;
+        background-color: transparent;
+        color: var(--primary-brown);
+        border: 2px solid var(--primary-pink);
+        border-radius: 50px;
+        font-weight: 600;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .btn-secondary:hover {
+        background-color: rgba(255, 173, 185, 0.1);
+        transform: translateY(-3px);
+    }
+</style>
+{% endblock %}
