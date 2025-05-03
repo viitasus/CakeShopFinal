@@ -4,10 +4,189 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Happy Cake{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* Basic CSS styles */
+        :root {
+            --primary-bg: #fff6e9; /* Light cream background */
+            --primary-pink: #ffadb9; /* Pink for buttons and highlights */
+            --primary-pink-hover: #ff8c9b; /* Darker pink for hover states */
+            --primary-brown: #774936; /* Dark brown for headings */
+            --soft-white: #fffaf5; /* Soft white for sections */
+            --light-red: #ff7b7b; /* Light red for accents */
+            --warm-yellow: #ffcc00; /* Warm yellow for sparkles */
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --transition-speed: 0.3s;
+            --success-green: #4caf50; /* Green for success messages */
+            --warning-orange: #ff9800; /* Orange for warning messages */
+            --danger-red: #f44336; /* Red for error messages */
+            --light-gray: #f5f5f5; /* Light gray for alternate rows */
+            --medium-gray: #e0e0e0; /* Medium gray for borders */
+            --dark-gray: #757575; /* Dark gray for text */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--primary-brown);
+            line-height: 1.6;
+        }
+        
+        a {
+            text-decoration: none;
+            color: var(--primary-brown);
+            transition: color var(--transition-speed);
+        }
+        
+        a:hover {
+            color: var(--primary-pink);
+        }
+        
+        h1, h2, h3, h4 {
+            color: var(--primary-brown);
+        }
+        
+        /* Container */
+        .container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Top Navigation Bar */
+        .top-bar {
+            background-color: var(--primary-pink);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo h1 {
+            color: var(--primary-brown);
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background-color: var(--soft-white);
+            padding: 20px 0;
+            position: sticky;
+            top: 70px;
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+        
+        .sidebar ul li a {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            font-weight: 500;
+        }
+        
+        .sidebar ul li a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .sidebar ul li.active a {
+            background-color: var(--primary-pink);
+            color: var(--soft-white);
+            border-radius: 0 25px 25px 0;
+        }
+        
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: var(--soft-white);
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 -2px 10px var(--shadow-color);
+        }
+        
+        /* Buttons */
+        .btn {
+            cursor: pointer;
+            font-family: 'Arial', sans-serif;
+            border: none;
+            outline: none;
+            background-color: var(--primary-pink);
+            color: var(--soft-white);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color var(--transition-speed), transform var(--transition-speed);
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-pink-hover);
+            transform: scale(1.05);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                padding: 10px 0;
+            }
+            
+            .sidebar ul {
+                display: flex;
+                overflow-x: auto;
+            }
+            
+            .sidebar ul li {
+                margin-right: 10px;
+                margin-bottom: 0;
+            }
+        }
+    </style>
     {% block extra_css %}{% endblock %}
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Baloo+2:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -15,148 +194,64 @@
         <header class="top-bar">
             <div class="logo">
                 <a href="{{ url_for('main.index') }}">
-                    <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Happy Cake Logo">
                     <h1>HAPPY CAKE</h1>
                 </a>
             </div>
-            <div class="search-bar">
-                <input type="text" id="search-input" placeholder="Search for cakes...">
-                <button class="search-button" id="search-button"><i class="fas fa-search"></i></button>
-            </div>
-            <div class="user-controls">
-                <a href="{{ url_for('main.cart') }}" class="cart-button" id="cart-btn">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count" id="cart-count">0</span>
-                </a>
+            <div>
                 {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.profile') }}" class="user-button" id="profile-btn">
-                    <i class="fas fa-user"></i>
-                </a>
+                    <span>Welcome, {{ current_user.name }}</span>
+                    <a href="{{ url_for('main.cart') }}" class="btn">Cart</a>
+                    <a href="{{ url_for('main.profile') }}" class="btn">Profile</a>
+                    <a href="{{ url_for('auth.logout') }}" class="btn">Logout</a>
                 {% else %}
-                <a href="{{ url_for('auth.login') }}" class="user-button" id="login-btn">
-                    <i class="fas fa-sign-in-alt"></i>
-                </a>
+                    <a href="{{ url_for('auth.login') }}" class="btn">Login</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn">Register</a>
                 {% endif %}
             </div>
         </header>
 
         <div class="main-content">
-            <!-- Left Sidebar Navigation -->
+            <!-- Sidebar Navigation -->
             <nav class="sidebar">
                 <ul>
                     <li class="{{ 'active' if request.endpoint == 'main.index' }}">
-                        <a href="{{ url_for('main.index') }}"><i class="fas fa-home"></i> Home</a>
+                        <a href="{{ url_for('main.index') }}">Home</a>
                     </li>
                     <li class="{{ 'active' if request.endpoint == 'main.menu' }}">
-                        <a href="{{ url_for('main.menu') }}"><i class="fas fa-list"></i> Menu</a>
-                    </li>
-                    <li class="{{ 'active' if request.endpoint == 'main.checkout' }}">
-                        <a href="{{ url_for('main.checkout') }}"><i class="fas fa-shopping-cart"></i> Order Now</a>
+                        <a href="{{ url_for('main.menu') }}">Menu</a>
                     </li>
                     <li class="{{ 'active' if request.endpoint == 'main.about' }}">
-                        <a href="{{ url_for('main.about') }}"><i class="fas fa-info-circle"></i> About Us</a>
+                        <a href="{{ url_for('main.about') }}">About Us</a>
                     </li>
                     <li class="{{ 'active' if request.endpoint == 'main.contact' }}">
-                        <a href="{{ url_for('main.contact') }}"><i class="fas fa-envelope"></i> Contact</a>
+                        <a href="{{ url_for('main.contact') }}">Contact</a>
+                    </li>
+                    <li class="{{ 'active' if request.endpoint == 'main.cart' }}">
+                        <a href="{{ url_for('main.cart') }}">My Cart</a>
                     </li>
                     {% if current_user.is_authenticated %}
                     <li class="{{ 'active' if request.endpoint.startswith('main.profile') }}">
-                        <a href="{{ url_for('main.profile') }}"><i class="fas fa-user-circle"></i> My Profile</a>
+                        <a href="{{ url_for('main.profile') }}">My Profile</a>
                     </li>
-                    {% else %}
-                    <li class="{{ 'active' if request.endpoint == 'auth.login' }}">
-                        <a href="{{ url_for('auth.login') }}"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    <li class="{{ 'active' if request.endpoint.startswith('main.profile_orders') }}">
+                        <a href="{{ url_for('main.profile') }}">My Orders</a>
                     </li>
                     {% endif %}
-                    <li class="{{ 'active' if request.endpoint == 'main.cart' }}">
-                        <a href="{{ url_for('main.cart') }}"><i class="fas fa-shopping-basket"></i> My Cart</a>
-                    </li>
                 </ul>
             </nav>
 
             <!-- Main Content Area -->
             <main class="content">
-                <!-- Flash messages -->
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                <div class="flash-messages">
-                    {% for category, message in messages %}
-                    <div class="flash-message {{ category }}">
-                        <p>{{ message }}</p>
-                        <button class="close-flash">&times;</button>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                {% endwith %}
-                
                 {% block content %}{% endblock %}
             </main>
         </div>
         
         <!-- Footer -->
         <footer class="footer">
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Happy Cake Logo">
-                    <h2>HAPPY CAKE</h2>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h3>Shop</h3>
-                        <ul>
-                            <li><a href="{{ url_for('main.menu') }}">All Cakes</a></li>
-                            <li><a href="{{ url_for('main.menu', category='birthday') }}">Birthday Cakes</a></li>
-                            <li><a href="{{ url_for('main.menu', category='wedding') }}">Wedding Cakes</a></li>
-                            <li><a href="{{ url_for('main.menu', category='seasonal') }}">Seasonal Cakes</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h3>About</h3>
-                        <ul>
-                            <li><a href="{{ url_for('main.about') }}">Our Story</a></li>
-                            <li><a href="{{ url_for('main.contact') }}">Contact Us</a></li>
-                            <li><a href="#">Careers</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h3>Help</h3>
-                        <ul>
-                            <li><a href="#">FAQ</a></li>
-                            <li><a href="#">Shipping & Delivery</a></li>
-                            <li><a href="#">Returns & Refunds</a></li>
-                            <li><a href="#">Privacy Policy</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h3>Contact</h3>
-                        <ul>
-                            <li><i class="fas fa-map-marker-alt"></i> 123 Cake Street, Sweet City, Pune 411001</li>
-                            <li><i class="fas fa-phone"></i> +91 98765 43210</li>
-                            <li><i class="fas fa-envelope"></i> info@happycake.com</li>
-                        </ul>
-                        <div class="social-media">
-                            <a href="#"><i class="fab fa-facebook"></i></a>
-                            <a href="#"><i class="fab fa-instagram"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                            <a href="#"><i class="fab fa-pinterest"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 Happy Cake. All rights reserved.</p>
-            </div>
+            <p>&copy; 2025 Happy Cake. All rights reserved.</p>
         </footer>
     </div>
-
-    <!-- Notification Container -->
-    <div class="notification-container" id="notification-container"></div>
-
-    <!-- Main JS -->
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     
-    <!-- Extra JS -->
     {% block extra_js %}{% endblock %}
 </body>
 </html>

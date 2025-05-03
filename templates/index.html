@@ -2,118 +2,192 @@
 
 {% block title %}Happy Cake - Delicious Cakes in Pune{% endblock %}
 
+{% block extra_css %}
+<style>
+    .hero-banner {
+        background-color: var(--soft-white);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        box-shadow: 0 5px 15px var(--shadow-color);
+    }
+    
+    .hero-text {
+        margin-bottom: 20px;
+    }
+    
+    .hero-text h2 {
+        font-size: 36px;
+        margin-bottom: 15px;
+    }
+    
+    .hero-text p {
+        font-size: 18px;
+        margin-bottom: 20px;
+        max-width: 600px;
+    }
+    
+    .order-now-btn {
+        display: inline-block;
+        background-color: var(--primary-pink);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 30px;
+        font-weight: bold;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+    
+    .order-now-btn:hover {
+        background-color: var(--primary-pink-hover);
+        transform: translateY(-3px);
+    }
+    
+    .cake-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .cake-card {
+        background-color: var(--soft-white);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px var(--shadow-color);
+        transition: transform 0.3s;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .cake-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .cake-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: contain;
+        margin-bottom: 15px;
+    }
+    
+    .cake-card h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+    
+    .cake-card .price {
+        color: var(--primary-pink-hover);
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    
+    .cake-card .card-actions {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .view-details-btn {
+        padding: 8px 15px;
+        background-color: transparent;
+        border: 1px solid var(--primary-pink);
+        color: var(--primary-brown);
+        border-radius: 20px;
+        text-align: center;
+        transition: background-color 0.3s;
+    }
+    
+    .view-details-btn:hover {
+        background-color: rgba(255, 173, 185, 0.1);
+    }
+    
+    .add-to-cart-btn {
+        padding: 8px 15px;
+        background-color: var(--primary-pink);
+        color: white;
+        border-radius: 20px;
+        text-align: center;
+        transition: background-color 0.3s;
+    }
+    
+    .add-to-cart-btn:hover {
+        background-color: var(--primary-pink-hover);
+    }
+    
+    .section-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--primary-pink);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- Hero Section -->
+<!-- Hero Banner -->
 <div class="hero-banner">
     <div class="hero-text">
-        <h2>Welcome to<br>Happy Cake</h2>
+        <h2>Welcome to Happy Cake</h2>
         <p>Delicious cakes for every occasion, made with love and the finest ingredients.</p>
         <a href="{{ url_for('main.menu') }}" class="order-now-btn">Order Now</a>
     </div>
-    <div class="hero-image">
-        <img src="{{ url_for('static', filename='images/cakes/main_cake.png') }}" alt="Delicious cake">
-    </div>
 </div>
 
-<!-- Popular Cakes Section -->
-<h2 class="section-header">Our Popular Cakes</h2>
+<!-- Featured Cakes Section -->
+<h2 class="section-title">Our Featured Cakes</h2>
 <div class="cake-cards">
     {% for product in products %}
     <div class="cake-card">
         <img src="{{ product.image_path or url_for('static', filename='images/cakes/' + product.slug + '.png') }}" alt="{{ product.name }}">
-        <h4>{{ product.name }}</h4>
-        <p class="price">₹{{ product.price|int|thousands_separator }}</p>
+        <h3>{{ product.name }}</h3>
+        <p class="price">₹{{ product.price }}</p>
         <div class="card-actions">
             <a href="{{ url_for('main.product', product_slug=product.slug) }}" class="view-details-btn">View Details</a>
-            <button class="add-to-cart-btn" 
-                    data-cake-id="{{ product.slug }}" 
-                    data-cake-name="{{ product.name }}" 
-                    data-price="{{ product.price }}">
-                Add to Cart
-            </button>
+            <button class="add-to-cart-btn" data-product-id="{{ product.id }}">Add to Cart</button>
         </div>
     </div>
     {% endfor %}
 </div>
-
-<!-- About Section (Mini) -->
-<div class="home-about-section">
-    <h2 class="section-header">Why Choose Happy Cake?</h2>
-    <div class="features-grid">
-        <div class="feature-card">
-            <i class="fas fa-birthday-cake"></i>
-            <h3>Fresh Ingredients</h3>
-            <p>We use only the freshest and highest quality ingredients for all our cakes.</p>
-        </div>
-        <div class="feature-card">
-            <i class="fas fa-truck"></i>
-            <h3>Fast Delivery</h3>
-            <p>Same-day delivery available for orders placed before noon.</p>
-        </div>
-        <div class="feature-card">
-            <i class="fas fa-heart"></i>
-            <h3>Made with Love</h3>
-            <p>Every cake is crafted with passion and attention to detail.</p>
-        </div>
-        <div class="feature-card">
-            <i class="fas fa-star"></i>
-            <h3>Custom Designs</h3>
-            <p>Create your own unique cake for any special occasion.</p>
-        </div>
-    </div>
-</div>
-
-<!-- Testimonials Section -->
-<div class="testimonials-section">
-    <h2 class="section-header">What Our Customers Say</h2>
-    <div class="testimonials-slider">
-        <div class="testimonial">
-            <div class="testimonial-content">
-                <p>"The chocolate cake was absolutely divine! Everyone at my daughter's birthday party loved it."</p>
-            </div>
-            <div class="testimonial-author">
-                <img src="{{ url_for('static', filename='images/testimonials/customer1.jpg') }}" alt="Customer">
-                <div>
-                    <h4>Priya Sharma</h4>
-                    <p>Pune</p>
-                </div>
-            </div>
-        </div>
-        <div class="testimonial">
-            <div class="testimonial-content">
-                <p>"I ordered a wedding cake and it was stunning! Not only beautiful but delicious too. Highly recommend!"</p>
-            </div>
-            <div class="testimonial-author">
-                <img src="{{ url_for('static', filename='images/testimonials/customer2.jpg') }}" alt="Customer">
-                <div>
-                    <h4>Raj & Neha</h4>
-                    <p>Mumbai</p>
-                </div>
-            </div>
-        </div>
-        <div class="testimonial">
-            <div class="testimonial-content">
-                <p>"Their strawberry cake is the best I've ever had. Fresh, light, and not too sweet. Perfect!"</p>
-            </div>
-            <div class="testimonial-author">
-                <img src="{{ url_for('static', filename='images/testimonials/customer3.jpg') }}" alt="Customer">
-                <div>
-                    <h4>Amit Patel</h4>
-                    <p>Pune</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Call to Action -->
-<div class="cta-section">
-    <h2>Ready to order your delicious cake?</h2>
-    <p>Choose from our wide variety of cakes for birthdays, weddings, and special occasions.</p>
-    <a href="{{ url_for('main.menu') }}" class="cta-button">Browse Our Menu</a>
-</div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+<script>
+    // Add to cart functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+        
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                
+                // Simple alert for now
+                alert('Product added to cart! (Product ID: ' + productId + ')');
+                
+                // This would normally be an AJAX call to add to cart
+                // fetch('/api/cart/add', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json'
+                //     },
+                //     body: JSON.stringify({
+                //         cake_id: productId,
+                //         quantity: 1
+                //     })
+                // })
+                // .then(response => response.json())
+                // .then(data => {
+                //     if (data.success) {
+                //         alert(data.message);
+                //     }
+                // });
+            });
+        });
+    });
+</script>
 {% endblock %}

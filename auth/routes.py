@@ -7,6 +7,10 @@ from auth.utils import validate_email, validate_password, get_password_strength
 # Create blueprint
 auth = Blueprint('auth', __name__)
 
+@auth.route('/auth')
+def index():
+    return render_template('index.html')  # Make sure 'index.html' exists in your 'templates' folder
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     """Render the login page and handle login requests"""

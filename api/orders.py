@@ -41,7 +41,8 @@ def get_orders():
                 'cake_name': product.name,
                 'quantity': item.quantity,
                 'price': float(item.price),
-                'total': float(item.price) * item.quantity
+                'total': float(item.price) * item.quantity,
+                'image': product.image_path or f"/static/images/cakes/{product.slug}.png"
             })
         
         # Format order ID
@@ -104,8 +105,31 @@ def get_order(order_id):
             'cake_name': product.name,
             'quantity': item.quantity,
             'price': float(item.price),
-            'total': float(item.price) * item.quantity
+            'total': float(item.price) * item.quantity,
+            'image': product.image_path or f"/static/images/cakes/{product.slug}.png"
         })
+    
+    # Format order ID
+    formatted_order_id = f"ORD{order.id:08d}"
+    
+    result = {
+        'id': order.id,
+        'order_id': formatted_order_id,
+        'total_amount': float(order.total_amount),
+        'status': order.status,
+        'order_date': formatted_date,
+        'shipping_address': address_text,
+        'delivery_date': order.delivery_date.strftime('%B %d, %Y') if order.delivery_date else None,
+        'payment_method': order.payment_method,
+        'payment_status': order.payment_status,
+        'items': items
+    }
+    
+    return jsonify({
+        'success': True,
+        'order': result
+    })
+
 @orders.route('/orders/create', methods=['POST'])
 @login_required
 def create_order():

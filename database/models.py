@@ -29,11 +29,15 @@ class User(db.Model, UserMixin):
     orders = db.relationship('Order', backref='user', lazy=True, cascade="all, delete-orphan")
     cart_items = db.relationship('CartItem', backref='user', lazy=True, cascade="all, delete-orphan")
 
-    def __init__(self, email, password, name, phone=None):
+    def __init__(self, email, password=None, password_hash=None, name=None, phone=None, is_admin=False):
         self.email = email
-        self.password_hash = generate_password_hash(password)
+        if password:
+            self.password_hash = generate_password_hash(password)
+        elif password_hash:
+            self.password_hash = password_hash
         self.name = name
         self.phone = phone
+        self.is_admin = is_admin
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)

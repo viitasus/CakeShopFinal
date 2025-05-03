@@ -3,29 +3,140 @@
 {% block title %}Register - Happy Cake{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/auth-styles.css') }}">
+<style>
+    .auth-container {
+        max-width: 500px;
+        margin: 40px auto;
+        background-color: var(--soft-white);
+        border-radius: 20px;
+        box-shadow: 0 5px 15px var(--shadow-color);
+        padding: 30px;
+    }
+    
+    .auth-container h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: var(--primary-brown);
+        font-size: 28px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--primary-brown);
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid var(--medium-gray);
+        border-radius: 10px;
+        font-size: 16px;
+    }
+    
+    .form-group input:focus {
+        border-color: var(--primary-pink);
+        outline: none;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+    }
+    
+    .checkbox-group input {
+        margin-right: 10px;
+        width: auto;
+    }
+    
+    .checkbox-group label {
+        margin-bottom: 0;
+    }
+    
+    .auth-button {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--primary-pink);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+        margin-top: 10px;
+    }
+    
+    .auth-button:hover {
+        background-color: var(--primary-pink-hover);
+        transform: translateY(-2px);
+    }
+    
+    .auth-switch {
+        text-align: center;
+        margin-top: 20px;
+        color: var(--dark-gray);
+    }
+    
+    .auth-switch a {
+        color: var(--primary-pink-hover);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .auth-switch a:hover {
+        text-decoration: underline;
+    }
+    
+    .password-strength {
+        margin-top: 5px;
+        height: 5px;
+        border-radius: 5px;
+        background-color: var(--medium-gray);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .password-strength-meter {
+        height: 100%;
+        border-radius: 5px;
+        transition: width 0.3s ease, background-color 0.3s ease;
+        width: 0;
+    }
+    
+    .password-tips {
+        margin-top: 5px;
+        font-size: 12px;
+        color: var(--dark-gray);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="auth-container">
     <h2>Create an Account</h2>
     
-    <form id="register-form">
+    <form id="register-form" method="post" action="{{ url_for('auth.register') }}">
         <div class="form-group">
-            <label for="register-name">Full Name</label>
-            <input type="text" id="register-name" name="name" required>
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" required>
         </div>
         <div class="form-group">
-            <label for="register-email">Email</label>
-            <input type="email" id="register-email" name="email" required>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
         </div>
         <div class="form-group">
-            <label for="register-phone">Phone (Optional)</label>
-            <input type="tel" id="register-phone" name="phone">
+            <label for="phone">Phone (Optional)</label>
+            <input type="tel" id="phone" name="phone">
         </div>
         <div class="form-group">
-            <label for="register-password">Password</label>
-            <input type="password" id="register-password" name="password" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
             <div class="password-strength">
                 <div class="password-strength-meter"></div>
             </div>
@@ -34,12 +145,12 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="register-confirm-password">Confirm Password</label>
-            <input type="password" id="register-confirm-password" name="confirm-password" required>
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" id="confirm-password" name="confirm-password" required>
         </div>
         <div class="form-group checkbox-group">
-            <input type="checkbox" id="terms-conditions" name="terms" required>
-            <label for="terms-conditions">I agree to the Terms and Conditions and Privacy Policy</label>
+            <input type="checkbox" id="terms" name="terms" required>
+            <label for="terms">I agree to the Terms and Conditions and Privacy Policy</label>
         </div>
         <button type="submit" class="auth-button">Create Account</button>
         
@@ -47,15 +158,64 @@
             Already have an account? <a href="{{ url_for('auth.login') }}">Login Now</a>
         </div>
     </form>
-    
-    <div class="auth-divider">
-        <span>or continue to</span>
-    </div>
-    
-    <a href="{{ url_for('main.menu') }}" class="continue-shopping-btn">Browse Cakes</a>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordInput = document.getElementById('password');
+        const strengthMeter = document.querySelector('.password-strength-meter');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            // Length check
+            if (password.length >= 8) {
+                strength += 1;
+            }
+            if (password.length >= 12) {
+                strength += 1;
+            }
+            
+            // Character type check
+            if (/[A-Z]/.test(password)) {
+                strength += 1;
+            }
+            if (/[a-z]/.test(password)) {
+                strength += 1;
+            }
+            if (/[0-9]/.test(password)) {
+                strength += 1;
+            }
+            if (/[^A-Za-z0-9]/.test(password)) {
+                strength += 1;
+            }
+            
+            // Update strength meter
+            if (strength < 3) {
+                strengthMeter.style.width = '33%';
+                strengthMeter.style.backgroundColor = 'var(--danger-red)';
+            } else if (strength < 5) {
+                strengthMeter.style.width = '66%';
+                strengthMeter.style.backgroundColor = 'var(--warning-orange)';
+            } else {
+                strengthMeter.style.width = '100%';
+                strengthMeter.style.backgroundColor = 'var(--success-green)';
+            }
+        });
+        
+        // Password confirmation check
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const registerForm = document.getElementById('register-form');
+        
+        registerForm.addEventListener('submit', function(e) {
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+            }
+        });
+    });
+</script>
 {% endblock %}

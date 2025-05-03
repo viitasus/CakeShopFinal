@@ -20,10 +20,10 @@ def init_database():
         # Create admin user
         admin = User(
             email="admin@happycake.com",
-            password_hash=generate_password_hash("Admin@123"),
             name="Admin User",
             phone="1234567890",
-            is_admin=True
+            is_admin=True,
+            password="Admin@123"
         )
         db.session.add(admin)
         

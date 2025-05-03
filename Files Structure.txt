@@ -1,0 +1,87 @@
+C:\USERS\OPAWA\DOWNLOADS\CAKESHOPFINAL
+│   app.py
+│   config.py
+│   requirements.txt
+│   routes.py
+│   run.py
+│
+├───api
+│   │   cart.py
+│   │   orders.py
+│   │   products.py
+│   │   users.py
+│   │   __init__.py
+│
+├───auth
+│   │   routes copy.py
+│   │   routes.py
+│   │   utils.py
+│   │   __init__.py
+│
+├───database
+│   │   init_db.py
+│   │   models.py
+│   │   schemas.py
+│   │   __init__.py
+│
+├───instance
+│       app.db
+│
+├───migrations
+│   └───versions
+├───services
+│       cart_service.py
+│       order_service.py
+│       product_service.py
+│       user_service.py
+│       __init__.py
+│
+├───static
+│   ├───css
+│   │       auth-styles.css
+│   │       styles.css
+│   │
+│   ├───fonts
+│   ├───images
+│   │   │   cake_placeholder.svg
+│   │   │   logo.svg
+│   │   │
+│   │   └───cakes
+│   └───js
+│           auth.js
+│           cart.js
+│           checkout.js
+│           profile.js
+│           script.js
+│
+├───templates
+│   │   base.html
+│   │   cart.html
+│   │   checkout.html
+│   │   home.html
+│   │   index.html
+│   │   login.html
+│   │   menu.html
+│   │   product.html
+│   │   register.html
+│   │
+│   ├───errors
+│   │       404.html
+│   │       500.html
+│   │
+│   ├───order
+│   │       confirmation.html
+│   │       details.html
+│   │
+│   └───profile
+│           addresses.html
+│           dashboard.html
+│           orders.html
+│           settings.html
+│
+├───utils
+│       decorators.py
+│       email_sender.py
+│       image_handler.py
+│       validators.py
+│       __init__.py
